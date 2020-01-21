@@ -3313,7 +3313,7 @@ let owner, repo, daysOld, packageNameRegex, versionRegex, packageLimit, versionL
 
 const getVersionsToDelete = async () => {
     const versionsQuery =
-        `{
+    `{
         repository(owner: "${owner}", name:"${repo}"){
             registryPackagesForQuery(
                 last: ${packageLimit},
@@ -3335,11 +3335,10 @@ const getVersionsToDelete = async () => {
                     }
                 }
             }
-        }}
-        `;
-    const versionsResult = await ghClient.graphql(versionsQuery, {});
-    console.log(versionsResult);
-    return versionsResult;
+        }
+    }`;
+
+    return await ghClient.graphql(versionsQuery, {});
 };
 const run = async () => {
     try {
@@ -3353,7 +3352,6 @@ const run = async () => {
         versionLimit = core.getInput('version-limit');
         console.log(`owner: ${owner} repo: ${repo}`);
         let versions = getVersionsToDelete();
-
         core.setOutput("success", "true");
     } catch (error) {
         core.setFailed(error.message);
