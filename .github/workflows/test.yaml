@@ -1,0 +1,13 @@
+name: package cleanup
+on:
+  push:
+    paths:
+      - '.github/workflows/test.yaml'
+jobs:
+  cleanup-one-old-or-with-the-wrong-name-tag:
+    runs-on: ubuntu-latest
+    steps:
+      - name: clean releases
+        uses: MobileheadHolding/github-action-purge-packages@master
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

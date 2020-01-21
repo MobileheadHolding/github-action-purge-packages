@@ -1,0 +1,30 @@
+name: 'purge packages'
+description: 'purge packages from the github package registry'
+branding:
+  icon: 'trash'
+  color: 'red'
+inputs:
+  owner:
+    description: 'name of the owner/organization of the github registry. default: owner of the repo the workflow is checked in'
+    required: false
+  repo:
+    description: 'name of the repo of the github registry. default: the repo the workflow is checked in'
+    required: false
+  days-old:
+    description: 'number of days the package has to be old to be purged. default: 30'
+    required: false
+    default: 30
+  package-name-regex:
+    description: 'string to be contained in the package name. default: *'
+    required: false
+    default: '*'
+  version-regex:
+    description: 'string to be contained in the version. default: *'
+    required: false
+    default: '*'
+outputs:
+  success:
+    description: 'whether the deletion succeeded or failed; true or false'
+runs:
+  using: 'node12'
+  main: 'dist/index.js'
