@@ -4,6 +4,7 @@
   "description": "purge packages from the github package registry",
   "main": "dist/index.js",
   "scripts": {
+    "build": "ncc build index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
