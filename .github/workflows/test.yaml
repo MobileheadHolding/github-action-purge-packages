@@ -3,7 +3,7 @@ on:
   push:
 
 jobs:
-  cleanup-one-old-or-with-the-wrong-name-tag:
+  try_to_list_packages:
     runs-on: ubuntu-latest
     steps:
       - name: clean releases

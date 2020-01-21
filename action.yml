@@ -22,6 +22,12 @@ inputs:
     description: 'string to be contained in the version. default: *'
     required: false
     default: '*'
+  package-limit:
+    description: 'limit the max number of packages to purge'
+    default: 10
+  version-limit:
+    description: 'limit the max number of versions to purge per package'
+    default: 10
 outputs:
   success:
     description: 'whether the deletion succeeded or failed; true or false'

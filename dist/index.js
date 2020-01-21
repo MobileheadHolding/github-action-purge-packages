@@ -6584,20 +6584,21 @@ const core = __webpack_require__(765);
 const github = __webpack_require__(947);
 
 const ghClient = new github.GitHub(process.env.GITHUB_TOKEN);
-let owner, repo, daysOld, packageNameRegex, versionRegex;
+let owner, repo, daysOld, packageNameRegex, versionRegex, packageLimit, versionLimit;
 
 const getVersionsToDelete = async () => {
     const versionsQuery =
             `query {
                 repository(owner: "${owner}", name:"${repo}"){
                     registryPackagesForQuery(
+                        last: ${packageLimit},
                         query: "${packageNameRegex}",
                     ){
                         edges{
                             node{
                                 id, 
                                 name, 
-                                versions{
+                                versions(last: ${versionLimit}){
                                     edges {
                                         node {
                                             id, 
@@ -6623,7 +6624,9 @@ const run = async () =>  {
         repo = core.getInput('repo') || context.payload.repository.full_name.split('/')[1];
         daysOld = core.getInput('days-old');
         packageNameRegex = core.getInput('package-name-regex');
+        packageLimit = core.getInput('package-limit');
         versionRegex = core.getInput('version-regex');
+        versionLimit = core.getInput('version-limit');
         console.log(`owner: ${owner} repo: ${repo}`);
         let versions = getVersionsToDelete();
 
