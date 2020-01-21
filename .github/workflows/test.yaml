@@ -10,6 +10,7 @@ jobs:
         uses: MobileheadHolding/github-action-purge-packages@master
         with:
           owner: github
-          repo: details-dialog-element
+          repo: semantic
+          version-regex: 'sha*'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

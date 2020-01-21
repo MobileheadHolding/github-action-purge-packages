@@ -14,7 +14,7 @@ inputs:
     description: 'number of days the package has to be old to be purged. default: 30'
     required: false
     default: 30
-  package-name-regex:
+  package-name-query:
     description: 'string to be contained in the package name.'
     required: false
     default: ''
