@@ -35,10 +35,10 @@ const getVersionsToDelete = async () => {
         .map(registryPackage => {
             return registryPackage.node.versions.edges.map(version => {
                 return {
+                    package: registryPackage.node.name,
                     id: version.node.id,
                     updatedAt: version.node.updatedAt,
-                    version: version.node.version,
-                    package: registryPackage.node.name
+                    version: version.node.version
                 }
             });
         })
@@ -47,15 +47,13 @@ const getVersionsToDelete = async () => {
             return versionRegex.test(version.version) && (new Date(version.updatedAt).getTime() <= new Date() - daysOld);
         });
 };
-const deleteVersion = async (versionId) => {
+const deleteVersion = async (version) => {
     return new Promise((resolve, reject) => {
         fetch(
             'https://api.github.com/graphql',
             {
                 method: 'post',
-                body: JSON.stringify({
-                    query: `{"query":"mutation { deletePackageVersion(input:{packageVersionId:\"${versionId}\"}) { success }}"}`
-                }),
+                body: JSON.stringify({query: `mutation { deletePackageVersion(input:{packageVersionId:\"${version.id}\"}) { success }}`}),
                 headers: {
                     'Accept': 'application/vnd.github.package-deletes-preview+json',
                     'Authorization': `bearer ${process.env.GITHUB_TOKEN}`
@@ -64,30 +62,32 @@ const deleteVersion = async (versionId) => {
             .then(res => res.json())
             .then(json => {
                 console.log(json);
-                resolve(json)
+                if (json.errors && json.errors.length > 0) {
+                    reject(json);
+                } else {
+                    resolve(json);
+                }
             });
     })
 
 };
 const run = async () => {
-    try {
-        const context = await github.context;
-        owner = core.getInput('owner') || context.payload.repository.full_name.split('/')[0];
-        repo = core.getInput('repo') || context.payload.repository.full_name.split('/')[1];
-        daysOld = core.getInput('days-old');
-        packageNameQuery = core.getInput('package-name-query');
-        packageLimit = core.getInput('package-limit');
-        versionRegex = RegExp(core.getInput('version-regex'));
-        versionLimit = core.getInput('version-limit');
-        let versionsToDelete = await getVersionsToDelete();
-        console.log(versionsToDelete);
-        core.setOutput("success", "true");
-        await versionsToDelete.map(version => {
-            return deleteVersion(version.id);
+    const context = await github.context;
+    owner = core.getInput('owner') || context.payload.repository.full_name.split('/')[0];
+    repo = core.getInput('repo') || context.payload.repository.full_name.split('/')[1];
+    daysOld = core.getInput('days-old');
+    packageNameQuery = core.getInput('package-name-query');
+    packageLimit = core.getInput('package-limit');
+    versionRegex = RegExp(core.getInput('version-regex'));
+    versionLimit = core.getInput('version-limit');
+    let versionsToDelete = await getVersionsToDelete();
+    console.log(versionsToDelete);
+    await versionsToDelete.map(version => {
+        return deleteVersion(version).catch(error => {
+            core.setFailed(`failed to delete ${JSON.stringify(version)}.`);
         });
-    } catch (error) {
-        core.setFailed(error.message);
-    }
+    });
+    core.setOutput("success", "true");
 };
 
 run();
