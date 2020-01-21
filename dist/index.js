@@ -3307,13 +3307,13 @@ function hasFirstPage (link) {
 
 const core = __webpack_require__(525);
 const github = __webpack_require__(351);
+const fetch = __webpack_require__(662);
 
 const ghClient = new github.GitHub(process.env.GITHUB_TOKEN);
 let owner, repo, daysOld, packageNameQuery, versionRegex, packageLimit, versionLimit;
 
 const getVersionsToDelete = async () => {
-    const versionsQuery =
-        `{
+    let edges = await ghClient.graphql(`{
         repository(owner: "${owner}", name:"${repo}"){
             registryPackagesForQuery(
                 last: ${packageLimit},
@@ -3336,8 +3336,7 @@ const getVersionsToDelete = async () => {
                 }
             }
         }
-    }`;
-    let edges = await ghClient.graphql(versionsQuery, {});
+    }`, {});
     edges = edges.repository.registryPackagesForQuery.edges;
     return edges
         .map(registryPackage => {
@@ -3352,9 +3351,30 @@ const getVersionsToDelete = async () => {
         })
         .flat()
         .filter(version => {
-            console.log(`${new Date(version.updatedAt).getTime() <= new Date() - daysOld }`);
-            return versionRegex.test(version.version) && (new Date(version.updatedAt).getTime() <= new Date() - daysOld );
+            return versionRegex.test(version.version) && (new Date(version.updatedAt).getTime() <= new Date() - daysOld);
         });
+};
+const deleteVersion = async (versionId) => {
+    return new Promise((resolve, reject) => {
+        fetch(
+            'https://api.github.com/graphql',
+            {
+                method: 'post',
+                body: JSON.stringify({
+                    query: `{"query":"mutation { deletePackageVersion(input:{packageVersionId:\"${versionId}\"}) { success }}"}`
+                }),
+                headers: {
+                    'Accept': 'application/vnd.github.package-deletes-preview+json',
+                    'Authorization': `bearer ${process.env.GITHUB_TOKEN}`
+                },
+            })
+            .then(res => res.json())
+            .then(json => {
+                console.log(json);
+                resolve(json)
+            });
+    })
+
 };
 const run = async () => {
     try {
@@ -3366,9 +3386,12 @@ const run = async () => {
         packageLimit = core.getInput('package-limit');
         versionRegex = RegExp(core.getInput('version-regex'));
         versionLimit = core.getInput('version-limit');
-        let versions = getVersionsToDelete();
-        console.log(versions);
+        let versionsToDelete = await getVersionsToDelete();
+        console.log(versionsToDelete);
         core.setOutput("success", "true");
+        await versionsToDelete.map(version => {
+            return deleteVersion(version.id);
+        });
     } catch (error) {
         core.setFailed(error.message);
     }

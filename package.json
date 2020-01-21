@@ -21,7 +21,6 @@
   "dependencies": {
     "@actions/core": "^1.2.1",
     "@actions/github": "^2.0.1",
-    "isomorphic-unfetch": "^3.0.0",
     "node-fetch": "^2.6.0"
   }
 }
