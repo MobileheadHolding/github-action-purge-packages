@@ -6618,13 +6618,13 @@ const getVersionsToDelete = async () => {
 };
 const run = async () =>  {
     try {
-        owner = core.getInput('owner');
-        repo = core.getInput('repo');
+        const context = await github.context;
+        owner = core.getInput('owner') || context.payload.repository.full_name.split('/')[0];
+        repo = core.getInput('repo') || context.payload.repository.full_name.split('/')[1];
         daysOld = core.getInput('days-old');
         packageNameRegex = core.getInput('package-name-regex');
         versionRegex = core.getInput('version-regex');
-
-        console.log(github.context);
+        console.log(`owner: ${owner} repo: ${repo}`);
         let versions = getVersionsToDelete();
 
         core.setOutput("success", "true");
