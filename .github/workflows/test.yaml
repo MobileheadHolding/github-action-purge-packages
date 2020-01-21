@@ -6,7 +6,7 @@ jobs:
   try_to_list_packages:
     runs-on: ubuntu-latest
     steps:
-      - name: clean releases
+      - name: clean packages
         uses: MobileheadHolding/github-action-purge-packages@master
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

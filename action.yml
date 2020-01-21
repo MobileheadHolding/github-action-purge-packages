@@ -15,16 +15,16 @@ inputs:
     required: false
     default: 30
   package-name-regex:
-    description: 'string to be contained in the package name. default: *'
+    description: 'string to be contained in the package name.'
     required: false
-    default: '*'
+    default: ''
   version-regex:
     description: 'string to be contained in the version. default: *'
     required: false
     default: '*'
   package-limit:
     description: 'limit the max number of packages to purge'
-    default: 10
+    default: 100
   version-limit:
     description: 'limit the max number of versions to purge per package'
     default: 10
