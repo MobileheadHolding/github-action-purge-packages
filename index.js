@@ -6,36 +6,34 @@ let owner, repo, daysOld, packageNameRegex, versionRegex, packageLimit, versionL
 
 const getVersionsToDelete = async () => {
     const versionsQuery =
-            `query {
-                repository(owner: "${owner}", name:"${repo}"){
-                    registryPackagesForQuery(
-                        last: ${packageLimit},
-                        query: "${packageNameRegex}",
-                    ){
-                        edges{
-                            node{
-                                id, 
-                                name, 
-                                versions(last: ${versionLimit}){
-                                    edges {
-                                        node {
-                                            id, 
-                                            updatedAt, 
-                                            version
-                                        }
-                                    }
+        `repository(owner: "${owner}", name:"${repo}"){
+            registryPackagesForQuery(
+                last: ${packageLimit},
+                query: "${packageNameRegex}",
+            ){
+                edges{
+                    node{
+                        id, 
+                        name, 
+                        versions(last: ${versionLimit}){
+                            edges {
+                                node {
+                                    id, 
+                                    updatedAt, 
+                                    version
                                 }
                             }
                         }
                     }
                 }
-            }`
-    ;
+            }
+        }
+        `;
     const versionsResult = await ghClient.graphql(versionsQuery, {});
     console.log(versionsResult);
     return versionsResult;
 };
-const run = async () =>  {
+const run = async () => {
     try {
         const context = await github.context;
         owner = core.getInput('owner') || context.payload.repository.full_name.split('/')[0];
