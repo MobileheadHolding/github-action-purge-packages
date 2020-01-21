@@ -3313,7 +3313,8 @@ let owner, repo, daysOld, packageNameRegex, versionRegex, packageLimit, versionL
 
 const getVersionsToDelete = async () => {
     const versionsQuery =
-        `repository(owner: "${owner}", name:"${repo}"){
+        `{
+        repository(owner: "${owner}", name:"${repo}"){
             registryPackagesForQuery(
                 last: ${packageLimit},
                 query: "${packageNameRegex}",
@@ -3334,7 +3335,7 @@ const getVersionsToDelete = async () => {
                     }
                 }
             }
-        }
+        }}
         `;
     const versionsResult = await ghClient.graphql(versionsQuery, {});
     console.log(versionsResult);
