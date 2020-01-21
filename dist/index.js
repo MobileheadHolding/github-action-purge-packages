@@ -3339,22 +3339,22 @@ const getVersionsToDelete = async () => {
     }`;
     let edges = await ghClient.graphql(versionsQuery, {});
     edges = edges.repository.registryPackagesForQuery.edges;
-    let versions = edges
-        .map(package => {
-            return package.node.versions.edges.map(version => {
+    return edges
+        .map(registryPackage => {
+            return registryPackage.node.versions.edges.map(version => {
                 return {
                     id: version.node.id,
                     updatedAt: version.node.updatedAt,
                     version: version.node.version,
-                    package: package.node.name
+                    package: registryPackage.node.name
                 }
             });
         })
         .flat()
         .filter(version => {
-            return versionRegex.test(version.version);
+            console.log(`${new Date(version.updatedAt).getTime() <= new Date() - daysOld }`);
+            return versionRegex.test(version.version) && (new Date(version.updatedAt).getTime() <= new Date() - daysOld );
         });
-    console.log(JSON.stringify(versions));
 };
 const run = async () => {
     try {
@@ -3366,8 +3366,8 @@ const run = async () => {
         packageLimit = core.getInput('package-limit');
         versionRegex = RegExp(core.getInput('version-regex'));
         versionLimit = core.getInput('version-limit');
-        console.log(`owner: ${owner} repo: ${repo}`);
         let versions = getVersionsToDelete();
+        console.log(versions);
         core.setOutput("success", "true");
     } catch (error) {
         core.setFailed(error.message);
