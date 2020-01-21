@@ -8,5 +8,8 @@ jobs:
     steps:
       - name: clean packages
         uses: MobileheadHolding/github-action-purge-packages@master
+        with:
+          owner: github
+          repo: details-dialog-element
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

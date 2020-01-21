@@ -30,6 +30,7 @@ const getVersionsToDelete = async () => {
             }
         }
     }`;
+
     return await ghClient.graphql(versionsQuery, {});
 };
 const run = async () => {
