@@ -2,11 +2,11 @@ on:
   push:
     tags:
 
-name: Create Release
+name: create Release
 
 jobs:
   build:
-    name: Create Release
+    name: create Release
     runs-on: ubuntu-latest
     steps:
       - name: checkout code
