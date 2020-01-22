@@ -29,8 +29,8 @@ inputs:
     description: 'limit the max number of versions to purge per package'
     default: 10
 outputs:
-  success:
-    description: 'whether the deletion succeeded or failed; true or false'
+  deletedVersions:
+    description: 'comma separated list of versions that got deleted'
 runs:
   using: 'node12'
   main: 'dist/index.js'

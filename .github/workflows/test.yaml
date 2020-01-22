@@ -3,7 +3,7 @@ on:
   push:
 
 jobs:
-  try_purging_semantic:
+  fail_purging_semantic:
     runs-on: ubuntu-latest
     steps:
       - name: clean packages

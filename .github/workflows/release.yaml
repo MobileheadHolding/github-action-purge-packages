@@ -5,20 +5,11 @@ on:
 name: create Release
 
 jobs:
-  build:
-    name: create Release
+  release:
+    name: Release GitHub Actions
     runs-on: ubuntu-latest
     steps:
-      - name: checkout code
-        uses: actions/checkout@master
-      - name: create Release
-        id: create_release
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # This token is provided by Actions, you do not need to create your own token
+      - name: Release GitHub Actions
+        uses: technote-space/release-github-actions@v2
         with:
-          tag_name: ${{ github.ref }}
-          release_name: Release ${{ github.ref }}
-          body: ${{ github.event.head_commit.message }}
-          draft: false
-          prerelease: false
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
