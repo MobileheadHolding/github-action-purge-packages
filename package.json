@@ -46,8 +46,6 @@
       "requireCleanWorkingDir": false,
       "tagName": "${version}"
     },
-    "github": {
-      "release": false
-    }
+    "github": false
   }
 }
