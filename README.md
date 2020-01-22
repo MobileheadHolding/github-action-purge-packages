@@ -1,4 +1,4 @@
-# Delete package from the Github Package Registry
+# purge packages for the current repository
 
 Github Action that deletes the given package from the Github Package Registry.
 
@@ -6,79 +6,93 @@ Github Action that deletes the given package from the Github Package Registry.
 
 This action supports the following options.
 
-### packageVersionId
+### owner:
 
-The version id of the package to be deleted, when null this action exits with a failure.
+* description: name of the owner/organization of the github registry
+* default: owner of the repo the workflow is checked in
+* required: `false`
+* type: `string`
+  
+### repo:
 
-* *Required*: `Yes`
-* *Type*: `string`
+* description: name of the repo of the github registry. 
+* default: the repo the workflow is checked in
+* required: `false`
+* type: `string`
 
-## Output
+### days-old:
 
-This action has only one output and that's the `success` output. This is the value we get back from the GraphQL API 
-indicating whether the operation has been a success or failure. We'll leave it up to you to consider what that means 
-for your workflow. 
+* description: number of days the package has to be old to be purged
+* required: false
+* default: 30
 
-## Example
+### package-name-query:
 
-The following example is a slimmed down version of my Docker Image clean up workflow. It runs hourly and takes at most 
-10 seconds, including the building of this action. The workflow picks up one Docker Image and deletes that one, the next 
-hour it will try to get another package id and delete it. When there isn't a Docker Image to delete it will silently 
-skip the deletion and try again in an hour.
+* description: 'string to be contained in the package name.'
+* required: false
+* default: ''
+
+### version-regex:
+
+* description: 'string to be contained in the version. default: *'
+* required: false
+* default: '*'
+  
+### package-limit:
+
+* description: 'limit the max number of packages to purge'
+* default: 100
+  
+### version-limit:
+
+* description: 'limit the max number of versions to purge per package'
+* default: 10
 
 ```yaml
-name: Docker Image Cleanup
+name: package cleanup
 on:
   schedule:
     - cron:  '33 * * * *'
+
 jobs:
-  cleanup-one-old-or-with-the-wrong-name-tag:
+  try_purging_semantic:
     runs-on: ubuntu-latest
     steps:
-      - name: Fetch releases
-        run: |
-          curl -X POST \
-            -s \
-            -H "Accept: application/vnd.github.package-deletes-preview+json" \
-            -H "Authorization: bearer ${{ secrets.GITHUB_TOKEN }}" \
-            -d '{"query":"query {repository(owner:\"${{ OWNER }}\", name:\"${{ REPOSITORY }}\") {registryPackages(last:1) {edges{node{id, name, versions(last:100){edges {node {id, updatedAt, version}}}}}}}}"}' \
-            -o /tmp/response.json \
-            --url https://api.github.com/graphql
-      - name: Filter Releases
-        run: "cat /tmp/response.json | jq -r 'def daysAgo(days): (now | floor) - (days * 86400); [.data.repository.registryPackages.edges[0].node.versions.edges | sort_by(.node.updatedAt|fromdate) | reverse | .[] | select( .node.version != \"docker-base-layer\" ) | .value[].node.id] | unique_by(.) | @csv'  | cut -d, -f1  | sed -e 's/^\"//' -e 's/\"$//' > /tmp/release.json"
-      - name: Show Release
-        id: release
-        run: printf "::set-output name=id::%s" $(cat /tmp/release.json)
-      - name: Delete Release
-        uses: WyriHaximus/github-action-delete-package@master
-        if: steps.release.outputs.id != ''
+      - name: clean packages
+        uses: MobileheadHolding/github-action-purge-packages@master
         with:
-          packageVersionId: ${{ steps.release.outputs.id }}
+          owner: github
+          repo: semantic
+          version-regex: 'sha*'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 ```
 
+## build and release
+
+1. run `npm run build`
+2. check in compiled `dist/index.js`
+
 ## License ##
 
-Copyright 2019 [Cees-Jan Kiewiet](http://wyrihaximus.net/)
+MIT License
 
-Permission is hereby granted, free of charge, to any person
-obtaining a copy of this software and associated documentation
-files (the "Software"), to deal in the Software without
-restriction, including without limitation the rights to use,
-copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the
-Software is furnished to do so, subject to the following
-conditions:
+Copyright (c) 2020-01-20 - Mobilehead Holding GmbH
 
-The above copyright notice and this permission notice shall be
-included in all copies or substantial portions of the Software.
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
-OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
-HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
-WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
-FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
-OTHER DEALINGS IN THE SOFTWARE.
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.

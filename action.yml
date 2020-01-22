@@ -11,7 +11,7 @@ inputs:
     description: 'name of the repo of the github registry. default: the repo the workflow is checked in'
     required: false
   days-old:
-    description: 'number of days the package has to be old to be purged. default: 30'
+    description: 'number of days the package has to be old to be purged'
     required: false
     default: 30
   package-name-query:

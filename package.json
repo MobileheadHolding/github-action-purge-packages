@@ -4,16 +4,21 @@
   "description": "purge packages from the github package registry",
   "main": "dist/index.js",
   "scripts": {
-    "build": "ncc build index.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "ncc build index.js"
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/MobileheadHolding/github-action-purge-packages.git"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
+  "keywords": [
+    "action",
+    "github",
+    "registry",
+    "cleanup",
+    "purge"
+  ],
+  "author": "Mobilehead Holding GmbH",
+  "license": "MIT",
   "bugs": {
     "url": "https://github.com/MobileheadHolding/github-action-purge-packages/issues"
   },
