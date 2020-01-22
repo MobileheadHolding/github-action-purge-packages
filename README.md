@@ -11,7 +11,7 @@ You can find an example for a minimal setup [here](https://github.com/Mobilehead
 ## build and release
 
 1. commit your changes
-2. `npm run release-it`
+2. `npm run release`
 
 ## License ##
 

@@ -4,7 +4,8 @@
   "description": "purge packages from the github package registry",
   "main": "dist/index.js",
   "scripts": {
-    "build": "ncc build index.js"
+    "build": "ncc build index.js",
+    "release": "release-it"
   },
   "repository": {
     "type": "git",
@@ -35,6 +36,18 @@
   "husky": {
     "hooks": {
       "pre-commit": "npm run build"
+    }
+  },
+  "release-it": {
+    "npm": {
+      "publish": false
+    },
+    "git": {
+      "requireCleanWorkingDir": false,
+      "tagName": "${version}"
+    },
+    "github": {
+      "release": false
     }
   }
 }
