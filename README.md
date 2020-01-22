@@ -1,6 +1,6 @@
 # purge packages for the current repository
 
-Github Action that deletes the given package from the Github Package Registry.
+Github Action to purge items from the github registry - determined by age, package name and version.
 
 ## Options
 
@@ -71,7 +71,11 @@ jobs:
 ## build and release
 
 1. run `npm run build`
-2. check in compiled `dist/index.js`
+2. bump version number in `package.json`
+3. check in, including compiled `dist/index.js`
+4. `git push`
+5. `git tag -a "your version" -m "your release message"`
+6. `git push origin --tags`
 
 ## License ##
 
