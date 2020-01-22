@@ -10,12 +10,8 @@ You can find an example for a minimal setup [here](https://github.com/Mobilehead
 
 ## build and release
 
-1. run `npm run build`
-2. bump version number in `package.json`
-3. check in, including compiled `dist/index.js`
-4. `git push`
-5. `git tag -a "your version" -m "your release message"`
-6. `git push origin --tags`
+1. commit your changes
+2. `npm run release-it`
 
 ## License ##
 

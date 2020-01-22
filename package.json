@@ -27,5 +27,14 @@
     "@actions/core": "^1.2.1",
     "@actions/github": "^2.0.1",
     "node-fetch": "^2.6.0"
+  },
+  "devDependencies": {
+    "husky": "^4.2.0",
+    "release-it": "*"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "npm run build"
+    }
   }
 }

@@ -3368,12 +3368,12 @@ const deleteVersion = async (version) => {
             })
             .then(res => res.json())
             .then(json => {
-                console.log(json);
-                if (json.errors && json.errors.length > 0) {
-                    reject(json);
-                } else {
-                    resolve(json);
-                }
+                core.debug(JSON.stringify(json));
+                resolve(json);
+            })
+            .catch(error => {
+                core.setFailed(`failed to delete ${JSON.stringify(version)}: ${JSON.stringify(error.message)}`);
+                reject();
             });
     })
 
@@ -3392,10 +3392,7 @@ const run = async () => {
     let deletedVersions = [];
     for (const version of versionsToDelete) {
         core.debug(`will try to delete ${JSON.stringify(version)}`);
-        await deleteVersion(version).catch(() => {
-            core.setFailed(`failed to delete ${JSON.stringify(version)}.`);
-            throw new Error("errors happened during deletion");
-        });
+        await deleteVersion(version);
         deletedVersions.push(`${version.package}@${version.version}`);
     }
     core.setOutput('deletedVersions', deletedVersions.join(','));
