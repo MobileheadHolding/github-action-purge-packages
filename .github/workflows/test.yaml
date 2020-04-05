@@ -11,6 +11,6 @@ jobs:
         with:
           owner: github
           repo: semantic
-          version-regex: '*'
+          version-regex: '.*'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
