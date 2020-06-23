@@ -8,9 +8,9 @@ let owner, repo, daysOld, packageNameQuery, versionRegex, packageLimit, versionL
 const getVersionsToDelete = async () => {
     let edges = await ghClient.graphql(`{
         repository(owner: "${owner}", name:"${repo}"){
-            registryPackagesForQuery(
-                last: ${packageLimit},
-                query: "${packageNameQuery}",
+            packages(
+                last: ${packageLimit}
+                names: [${packageNameQuery}]
             ){
                 edges{
                     node{
@@ -19,9 +19,13 @@ const getVersionsToDelete = async () => {
                         versions(last: ${versionLimit}){
                             edges {
                                 node {
-                                    id, 
-                                    updatedAt, 
+                                    id
                                     version
+                                    files(first: 1) {
+                                        nodes {
+                                            updatedAt
+                                        }
+                                    }
                                 }
                             }
                         }
@@ -30,19 +34,23 @@ const getVersionsToDelete = async () => {
             }
         }
     }`, {});
-    edges = edges.repository.registryPackagesForQuery.edges;
+
+    edges = edges.repository.packages.edges;
     return edges
-        .map(registryPackage => {
-            return registryPackage.node.versions.edges.map(version => {
+        .map(pkg => {
+            return pkg.node.versions.edges.map(version => {
+                const files = version.node.files ? version.node.files.nodes : [];
+                const updatedAt = files.length > 0 ? files[0].updatedAt : ''
                 return {
-                    package: registryPackage.node.name,
+                    package: pkg.node.name,
                     id: version.node.id,
-                    updatedAt: version.node.updatedAt,
+                    updatedAt: updatedAt,
                     version: version.node.version
                 }
             });
         })
         .flat()
+        .filter(version => version.updatedAt)
         .filter(version => {
             return versionRegex.test(version.version) && (new Date(version.updatedAt).getTime() <= new Date() - daysOld);
         });
@@ -80,6 +88,10 @@ const run = async () => {
     packageLimit = core.getInput('package-limit');
     versionRegex = RegExp(core.getInput('version-regex'));
     versionLimit = core.getInput('version-limit');
+
+    if (packageNameQuery) {
+        packageNameQuery = packageNameQuery.split(',').map(str => `"${str}"`).join(',')
+    }
 
     let versionsToDelete = await getVersionsToDelete();
     let deletedVersions = [];
