@@ -52,7 +52,9 @@ const getVersionsToDelete = async () => {
         .flat()
         .filter(version => version.updatedAt)
         .filter(version => {
-            return versionRegex.test(version.version) && (new Date(version.updatedAt).getTime() <= new Date() - daysOld);
+            const baseTime = new Date().getTime() - (daysOld * 1000 * 60 * 60 * 24)
+            const updatedTime = new Date(version.updatedAt).getTime()
+            return versionRegex.test(version.version) && updatedTime < baseTime;
         });
 };
 const deleteVersion = async (version) => {
@@ -96,8 +98,13 @@ const run = async () => {
     let versionsToDelete = await getVersionsToDelete();
     let deletedVersions = [];
     for (const version of versionsToDelete) {
-        core.debug(`will try to delete ${JSON.stringify(version)}`);
-        await deleteVersion(version);
+        if (process.env.CI === 'true') {
+            core.debug(`will try to delete ${JSON.stringify(version)}`);
+            await deleteVersion(version);
+        }
+        else {
+            core.debug(`Not on CI: skip delete of ${JSON.stringify(version)}`)
+        }
         deletedVersions.push(`${version.package}@${version.version}`);
     }
     core.setOutput('deletedVersions', deletedVersions.join(','));
