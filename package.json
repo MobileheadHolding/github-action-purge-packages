@@ -1,6 +1,6 @@
 {
   "name": "github-action-purge-packages",
-  "version": "1.0.4",
+  "version": "2.0.0",
   "description": "purge packages from the github package registry",
   "main": "dist/index.js",
   "scripts": {
@@ -30,8 +30,9 @@
     "node-fetch": "^2.6.0"
   },
   "devDependencies": {
+    "@zeit/ncc": "^0.22.3",
     "husky": "^4.2.0",
-    "release-it": "*"
+    "release-it": "^13.6.4"
   },
   "husky": {
     "hooks": {
