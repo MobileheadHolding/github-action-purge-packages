@@ -25,7 +25,7 @@
   },
   "homepage": "https://github.com/MobileheadHolding/github-action-purge-packages#readme",
   "dependencies": {
-    "@actions/core": "^1.2.1",
+    "@actions/core": "^1.2.6",
     "@actions/github": "^2.0.1",
     "node-fetch": "^2.6.0"
   },
